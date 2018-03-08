@@ -1,0 +1,22 @@
+.jumbotron {
+  text-align: center;
+  background-color: transparent;
+  margin: 0px;
+}
+
+.jumbotron .btn {
+  padding: 14px 24px;
+  font-size: 21px;
+}
+
+a:hover, a:focus {
+  text-decoration: none;
+}
+
+h2 {
+  margin-top: 0px;
+}
+
+.row {
+  margin-bottom: 20px;
+}

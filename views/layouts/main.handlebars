@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>mongo scraper</title>
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<link rel="stylesheet" href="/assets/css/style.css" />
+		<script src="https://code.jquery.com/jquery.js"></script>
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<script src="/assets/js/scraper.js"></script>
+	</head>
+	<body>
+		<div class="container">
+
+      <!-- Jumbotron -->
+      <div class="jumbotron">
+        <h1>mongo scraper</h1>
+        <p class="lead">scraping articles from the 'giant bomb' video game site since march 2018...</p>
+        <p><a class="btn btn-lg btn-success" id="scrapeBtn" href="#" role="button">scrape new articles</a></p>
+      </div>
+
+			{{{ body }}}
+
+		</div>
+
+		<div class="modal fade" id="commentModal" tabindex="-1" role="dialog">
+			<div class="modal-dialog modal-lg" role="document">
+				<div class="modal-content">
+					<div class="modal-body">
+						<div id="modalCommentContainer" class="text-center">
+						</div>
+						<form>
+							<div class="form-group">
+									<label for="postComment">comment: </label>
+									<input type="text" class="form-control" id="postComment" required>
+							</div>
+							<div class="text-right form-group">
+								<button type="submit" class="btn btn-primary addCommentBtn" data-dismiss="modal">add comment</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

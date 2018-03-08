@@ -1,0 +1,14 @@
+{{#each articles}}
+  <div class="row">
+    <div class="col-xs-2">
+      <img src="{{img}}" alt="{{title}}" class="img-responsive">
+    </div>
+    <div class="col-xs-10">
+      <h2><a href="https://www.giantbomb.com{{link}}" target="_blank">{{title}}</a></h2>
+      <p><i>{{byline}}</i></p>
+      <p>{{excerpt}}</p>
+      <p><button class="btn btn-primary commentBtn" data-id="{{_id}}" data-toggle="modal" data-target="#commentModal">view comments &raquo;</button></p>
+    </div>
+  </div>
+{{/each}}
+
