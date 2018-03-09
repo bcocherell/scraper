@@ -34,7 +34,10 @@ router.get("/scrape", function(req, res) {
   var newArticles = 0;
 
   // First, we grab the body of the html with request
-  request("https://www.giantbomb.com/", function(error, response, html) {
+  request({
+    url: "https://www.giantbomb.com/",
+    headers: {'User-Agent': 'Mozilla/5.0'}
+  }, function(error, response, html) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(html);
 
