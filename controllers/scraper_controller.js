@@ -38,6 +38,9 @@ router.get("/scrape", function(req, res) {
     url: "https://www.giantbomb.com/",
     headers: {'User-Agent': 'Mozilla/5.0'}
   }, function(error, response, html) {
+
+    console.log('error:', error); // Print the error if one occurred
+    console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
     // Then, we load that into cheerio and save it to $ for a shorthand selector
     var $ = cheerio.load(html);
 
