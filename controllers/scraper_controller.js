@@ -36,7 +36,7 @@ router.get("/scrape", function(req, res) {
   // First, we grab the body of the html with request
   request({
     url: "https://www.giantbomb.com/",
-    headers: {'User-Agent': 'request'}
+    headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'}
   }, function(error, response, html) {
 
     console.log('error:', error); // Print the error if one occurred
