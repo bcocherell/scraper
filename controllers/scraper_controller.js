@@ -1,5 +1,5 @@
 // Scraping tools
-var axios = require("axios");
+var request = require("request");
 var cheerio = require("cheerio");
 var express = require("express");
 var router = express.Router();
@@ -34,9 +34,9 @@ router.get("/scrape", function(req, res) {
   var newArticles = 0;
 
   // First, we grab the body of the html with request
-  axios.get("https://www.giantbomb.com/").then(function(response) {
+  request("https://www.giantbomb.com/", function(error, response, html) {
     // Then, we load that into cheerio and save it to $ for a shorthand selector
-    var $ = cheerio.load(response.data);
+    var $ = cheerio.load(html);
 
     // Now, we grab every h2 within an article tag, and do the following:
     $("p.editorial-excerpt").each(function(i, element) {
@@ -78,10 +78,8 @@ router.get("/scrape", function(req, res) {
           return res.json(err);
         });
     });
-
-    // If we were able to successfully scrape and save an Article, send a message to the client
-    res.send(newArticles + ' new articles added!');
   });
+  res.send("Scrape Complete");
 });
 
 // Route for grabbing a specific Article by id, populate it with it's note

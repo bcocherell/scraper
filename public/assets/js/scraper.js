@@ -86,6 +86,6 @@ $(document).on("click", "#scrapeBtn", function() {
     $(".jumbotron").after('<div class="alert alert-success" role="alert">scraping successful</div>');
     setTimeout(function () {
       location.reload();
-    }, 2000);
+    }, 5000);
   });
 });
