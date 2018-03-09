@@ -119,6 +119,16 @@ router.post("/articles/:id", function(req, res) {
     });
 });
 
+router.delete("/comments/:id", function(req, res) {
+  db.Comment.remove({ _id: req.params.id })
+    .then(function(dbComment) {
+      res.json(dbComment);
+    })
+    .catch(function(err) {
+      res.json(err);
+    });
+});
+
 module.exports = router;
 
 // module.exports = function(app) {

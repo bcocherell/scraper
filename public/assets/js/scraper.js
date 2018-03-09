@@ -22,6 +22,23 @@ $(document).on("click", ".addCommentBtn", function() {
   $("#postComment").val("");
 });
 
+$(document).on("click", ".deleteCommentBtn", function() {
+  // Grab the id associated with the article from the submit button
+  var thisId = $(this).attr("data-id");
+
+  // Run a POST request to change the note, using what's entered in the inputs
+  $.ajax({
+    method: "DELETE",
+    url: "/comments/" + thisId
+  })
+    // With that done
+    .then(function(data) {
+      // Log the response
+      console.log(data);
+      // Empty the notes section
+    });
+});
+
 $(document).on("click", ".commentBtn", function() {
   // Empty the notes from the note section
   $("#modalCommentContainer").empty();
