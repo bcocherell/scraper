@@ -9,14 +9,14 @@ var db = require("../models");
 
 // get route -> index
 router.get("/", function(req, res) {
-  // send us to the next get function instead.
+  // send us to the articles.
   res.redirect("/articles");
 });
 
-// get route, edited to match sequelize
+// get route, retrieves all article records from db
 router.get("/articles", function(req, res) {
-  // replace old function with sequelize function
-  db.Article.find({}).sort({"date":-1})
+
+  db.Article.find({}).sort({"published":-1})
     .then(function(dbArticle) {
       var articles = {
         articles: dbArticle
@@ -34,49 +34,68 @@ router.get("/scrape", function(req, res) {
   var newArticles = 0;
 
   // First, we grab the body of the html with request
-  request({
-    url: "https://www.giantbomb.com/",
-    headers: {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/55.0.2883.95 Safari/537.36'}
-  }, function(error, response, html) {
+  request("https://www.snopes.com/", function(error, response, html) {
 
-    console.log('error:', error); // Print the error if one occurred
-    console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    // Then, we load that into cheerio and save it to $ for a shorthand selector
+    if (error) {
+      console.log('error:', error); // Print the error if one occurred
+      console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+    }
+
+    // use cheerio
     var $ = cheerio.load(html);
 
-    // Now, we grab every h2 within an article tag, and do the following:
-    $("p.editorial-excerpt").each(function(i, element) {
-      // Save an empty result object
+    // loop through every article, saving information to a result object
+    $('div.article-links-wrapper.grid-view').children('article').each(function(i, element) {
+
       var result = {};
 
-      result.excerpt = $(this).text();
+      result.link = $(this).children('a').attr("href")
       
       result.img = $(this)
-        .siblings(".editorial-img")
-        .children("img")
-        .attr("src");
+        .children('a')
+        .children('span[itemprop="image"]')
+        .children('meta[itemprop="url"]')
+        .attr("content");
 
+      result.summary = $(this)
+        .children('a')
+        .children('div[class="article-link-container"]')
+        .children('p')
+        .clone()
+        .children()
+        .remove()
+        .end()
+        .text()
+        .trim();
+      
       result.title = $(this)
-        .siblings(".editorial-title")
+        .children('a')
+        .children('div[class="article-link-container"]')
+        .children('h2')
         .text();
 
-      result.byline = $(this)
-        .siblings(".editorial-byline")
+      result.date = $(this)
+        .children('a')
+        .children('div[class="article-link-container"]')
+        .children('p')
+        .children('span')
         .text();
-          
-      result.link = $(this)
-        .parent("a")
-        .attr("href");
 
+      result.published = $(this)
+        .children('a')
+        .children('meta[itemprop="datePublished"]')
+        .attr("content");
 
       var query = {'link':result.link};
       
       db.Article.findOneAndUpdate(query, result, {upsert:true, setDefaultsOnInsert:true, new:false})
         .then(function(dbArticle) {
-          // View the added result in the console
+          
           if (dbArticle == null) {
             newArticles++;
           }
+
+          // View the added result in the console
           console.log(dbArticle);
         })
         .catch(function(err) {
@@ -85,14 +104,14 @@ router.get("/scrape", function(req, res) {
         });
     });
   });
-  res.send("Scrape Complete");
+  res.send("scrape successful");
 });
 
-// Route for grabbing a specific Article by id, populate it with it's note
+// Route for grabbing a specific Article by id, populate it with its comments
 router.get("/articles/:id", function(req, res) {
-  // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
+  
   db.Article.findOne({ _id: req.params.id })
-    // ..and populate all of the notes associated with it
+    // populate all of the comments associated with article
     .populate("comments")
     .then(function(dbArticle) {
       // If we were able to successfully find an Article with the given id, send it back to the client
@@ -105,12 +124,10 @@ router.get("/articles/:id", function(req, res) {
 });
 
 router.post("/articles/:id", function(req, res) {
-  // Create a new note and pass the req.body to the entry
+  // Create a new comment and pass the req.body to the entry
   db.Comment.create(req.body)
     .then(function(dbComment) {
-      // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
-      // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
-      // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
+      // If a Comment was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Comment
       return db.Article.findOneAndUpdate({ _id: req.params.id }, {$push: { comments: dbComment._id }}, { new: true });
     })
     .then(function(dbArticle) {
@@ -124,6 +141,7 @@ router.post("/articles/:id", function(req, res) {
 });
 
 router.delete("/comments/:id", function(req, res) {
+  // Delete Comment by id value provided
   db.Comment.remove({ _id: req.params.id })
     .then(function(dbComment) {
       res.json(dbComment);
@@ -134,57 +152,3 @@ router.delete("/comments/:id", function(req, res) {
 });
 
 module.exports = router;
-
-// module.exports = function(app) {
-
-//   // A GET route for scraping the echojs website
-
-//   // Route for getting all Articles from the db
-//   app.get("/api/articles", function(req, res) {
-//     db.Article.find({}).sort({"date":-1})
-//       .then(function(dbArticle) {
-//         // If we were able to successfully find Articles, send them back to the client
-//         res.json(dbArticle);
-//       })
-//       .catch(function(err) {
-//         // If an error occurred, send it to the client
-//         res.json(err);
-//       });
-//   });
-
-//   // Route for grabbing a specific Article by id, populate it with it's note
-//   app.get("/api/articles/:id", function(req, res) {
-//     // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-//     db.Article.findOne({ _id: req.params.id })
-//       // ..and populate all of the notes associated with it
-//       .populate("comments")
-//       .then(function(dbArticle) {
-//         // If we were able to successfully find an Article with the given id, send it back to the client
-//         res.json(dbArticle);
-//       })
-//       .catch(function(err) {
-//         // If an error occurred, send it to the client
-//         res.json(err);
-//       });
-//   });
-
-//   //Route for saving/updating an Article's associated Note
-//   app.post("/api/articles/:id", function(req, res) {
-//     // Create a new note and pass the req.body to the entry
-//     db.Comment.create(req.body)
-//       .then(function(dbComment) {
-//         // If a Note was created successfully, find one Article with an `_id` equal to `req.params.id`. Update the Article to be associated with the new Note
-//         // { new: true } tells the query that we want it to return the updated User -- it returns the original by default
-//         // Since our mongoose query returns a promise, we can chain another `.then` which receives the result of the query
-//         return db.Article.findOneAndUpdate({ _id: req.params.id }, {$push: { comments: dbComment._id }}, { new: true });
-//       })
-//       .then(function(dbArticle) {
-//         // If we were able to successfully update an Article, send it back to the client
-//         res.json(dbArticle);
-//       })
-//       .catch(function(err) {
-//         // If an error occurred, send it to the client
-//         res.json(err);
-//       });
-//   });
-// };

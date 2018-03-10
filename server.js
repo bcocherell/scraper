@@ -36,8 +36,6 @@ mongoose.connect(MONGODB_URI);
 
 // Routes
 // =============================================================
-// require("./routes/html-routes.js")(app);
-
 var routes = require("./controllers/scraper_controller.js");
 app.use(routes);
 

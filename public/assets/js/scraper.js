@@ -2,7 +2,7 @@ $(document).on("click", ".addCommentBtn", function() {
   // Grab the id associated with the article from the submit button
   var thisId = $(this).attr("data-id");
 
-  // Run a POST request to change the note, using what's entered in the inputs
+  // Run a POST request to create a comment, using what's entered in the inputs
   $.ajax({
     method: "POST",
     url: "/articles/" + thisId,
@@ -11,38 +11,34 @@ $(document).on("click", ".addCommentBtn", function() {
       comment: $("#postComment").val()
     }
   })
-    // With that done
     .then(function(data) {
       // Log the response
       console.log(data);
-      // Empty the notes section
     });
 
-  // Also, remove the values entered in the input and textarea for note entry
+  // Also, remove the values entered in the input
   $("#postComment").val("");
 });
 
 $(document).on("click", ".deleteCommentBtn", function() {
-  // Grab the id associated with the article from the submit button
+  // Grab the id associated with the comment from the submit button
   var thisId = $(this).attr("data-id");
 
-  // Run a POST request to change the note, using what's entered in the inputs
+  // Run a DELETE request to delete the comment
   $.ajax({
     method: "DELETE",
     url: "/comments/" + thisId
   })
-    // With that done
     .then(function(data) {
       // Log the response
       console.log(data);
-      // Empty the notes section
     });
 });
 
 $(document).on("click", ".commentBtn", function() {
-  // Empty the notes from the note section
+  // Empty the comments from the comment section
   $("#modalCommentContainer").empty();
-  // Save the id from the p tag
+  // Save the id from the button
   var thisId = $(this).attr("data-id");
 
   // Now make an ajax call for the Article
@@ -50,14 +46,13 @@ $(document).on("click", ".commentBtn", function() {
     method: "GET",
     url: "/articles/" + thisId
   })
-    // With that done, add the note information to the page
+    // With that done, add the comment information to the page
     .then(function(data) {
       console.log(data);
-      // The title of the article
       
       var modalCommentContainer = $("#modalCommentContainer");
 
-      modalCommentContainer.append('<h3>' + data.title + '</h3>');
+      modalCommentContainer.append('<h4>' + data.title + '</h4>');
 
       for (var i = 0; i < data.comments.length; i++) {
         var panel = $('<div class="panel panel-default">');
@@ -82,7 +77,6 @@ $(document).on("click", "#scrapeBtn", function() {
   })
   .then(function(data) {
       
-    // $(".jumbotron").after('<div class="alert alert-success" role="alert">' + data + '</div>');
     $(".jumbotron").after('<div class="alert alert-success" role="alert">scraping successful</div>');
     setTimeout(function () {
       location.reload();
